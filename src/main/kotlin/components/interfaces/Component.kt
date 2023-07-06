@@ -1,0 +1,3 @@
+package components.interfaces
+
+interface Component
