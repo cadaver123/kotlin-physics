@@ -7,4 +7,4 @@ enum class CollisionType {
     MERGE
 }
 
-data class Collider(var weight: Double, val type: CollisionType): Component
+data class Collider(var mass: Double, val type: CollisionType): Component
