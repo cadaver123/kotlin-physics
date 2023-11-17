@@ -58,7 +58,7 @@ class App {
             addStar(entities, CENTER_POINT)
             //addStar(entities, CENTER_POINT + Vector(100.0, .0))
 
-            for (i in 1..1000) {
+            for (i in 1..100) {
                 tryAddRandomBodies(entities)
             }
 
@@ -69,9 +69,9 @@ class App {
                 Entity(
                     Circle(5.0, Color.RED),
                     Position(positionVec),
-                    GravitySource(10000.0),
+                    GravitySource(100000.0),
                     //Velocity(Vector(.0, .0)),
-                    Destructor(),
+                    //Destructor(),
                 )
             );
         }
@@ -96,20 +96,20 @@ class App {
 
         fun getRandomBodyEntity(): Entity {
             val center = CENTER_POINT
-            val size = 1.0
+            val size = Random.nextDouble(5.0, 20.0)
             val positionVec = Vector(
                 Random.nextDouble(center.x - 400, center.x + 400),
                 Random.nextDouble(center.y - 400, center.y + 400)
             )
             val distanceFromCenter = center.distance(positionVec)
             val velocity =
-                (CENTER_POINT - positionVec).getPerpendicularCounterClockwise() * sqrt (0.2*GRAVITANIONAL_CONSTANT*10000.0/distanceFromCenter)
+                (CENTER_POINT - positionVec).getPerpendicularCounterClockwise() * sqrt (5.5*GRAVITANIONAL_CONSTANT*10000.0/distanceFromCenter)
 
             return Entity(
                 Circle(size, getRandomColor()),
                 Position(positionVec),
                 Velocity(velocity),
-                Collider(size, CollisionType.MERGE),
+                Collider(size, CollisionType.ELASTIC),
                 GravitySource(size)
             )
         }
