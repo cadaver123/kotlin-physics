@@ -1,3 +1,1 @@
-
-rootProject.name = "simplePhysics"
-
+rootProject.name = "simple-physics"

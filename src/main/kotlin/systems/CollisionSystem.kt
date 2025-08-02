@@ -2,15 +2,21 @@ package systems
 
 import Environment
 import common.Vector
-import components.*
+import components.Collider
+import components.CollisionType
+import components.GravitySource
+import components.Position
+import components.Velocity
 import components.shapes.Circle
 import entities.Entity
+import processing.AABB
+import processing.Quadtree
 import systems.interfaces.SimulationSystem
 import systems.service.CirclesCollisionDetector
 import java.lang.Math.pow
 import java.lang.Math.sqrt
 
-private class EntityMergeVO(e: Entity): EntityVO(e) {
+private class EntityMergeVO(e: Entity) : EntityVO(e) {
     val gravity: GravitySource?
     private val circle: Circle
 
@@ -27,11 +33,11 @@ private class EntityMergeVO(e: Entity): EntityVO(e) {
 }
 
 
-private class EntityElasticVO(e: Entity): EntityVO(e) {
+private class EntityElasticVO(e: Entity) : EntityVO(e) {
     private val positionComponent: Position
 
     val position: Vector
-        get() = positionComponent.vector
+        get() = positionComponent.vec
 
 
     init {
@@ -44,9 +50,9 @@ private open class EntityVO(e: Entity) {
     protected val collider: Collider
 
     var v: Vector
-        get() = velocity.vector
+        get() = velocity.vec
         set(value) {
-            velocity.vector = value
+            velocity.vec = value
         }
 
     var m: Double
@@ -61,21 +67,32 @@ private open class EntityVO(e: Entity) {
     }
 }
 
-
 class CollisionSystem : SimulationSystem {
     override fun updateState(delta: Double) {
         val entities = Environment.entities.filter { it.hasComponent(Collider::class) }
         val objectsToRemove = mutableSetOf<Entity>()
+        val collidingObjectsMap = HashMap<Entity, HashSet<Entity>>()
 
-        for (i in entities.indices) {
-            for (j in i + 1 until entities.size) {
-                val e1 = entities[i]
-                val e2 = entities[j]
+        val tree = Quadtree(AABB(Environment.CENTER_POINT, Environment.ENV_SIZE.x, Environment.ENV_SIZE.y))
+        entities.forEach {
+            if (it.hasComponent(Circle::class)) {
+                tree.insert(it)
+            }
+        }
 
-                if (CirclesCollisionDetector.isColliding(e1, e2)) {
-                    when {
-                        isElasticCollision(e1, e2) == true -> doElasticCollision(e1, e2)
-                        isMergeCollision(e1, e2) == true -> doMergeCollision(e1, e2, objectsToRemove)
+        entities.forEach {
+            val potentialCollidingEntities = tree.queryByCircle(it)
+            for(potentialCollidingEntity in potentialCollidingEntities) {
+                if (it !== potentialCollidingEntity && collidingObjectsMap[it]?.contains(potentialCollidingEntity) != true) {
+                    if (CirclesCollisionDetector.isColliding(it, potentialCollidingEntity)) {
+                        when {
+                            isElasticCollision(it, potentialCollidingEntity) -> doElasticCollision(it, potentialCollidingEntity)
+                            isMergeCollision(it, potentialCollidingEntity) == true -> doMergeCollision(it, potentialCollidingEntity, objectsToRemove)
+                        }
+                        if (collidingObjectsMap[potentialCollidingEntity] == null) {
+                            collidingObjectsMap[potentialCollidingEntity] = HashSet.newHashSet(3)
+                        }
+                        collidingObjectsMap[potentialCollidingEntity]!!.add(it)
                     }
                 }
             }
@@ -85,8 +102,8 @@ class CollisionSystem : SimulationSystem {
     }
 
     private fun doMergeCollision(e1: Entity, e2: Entity, objectsToRemove: MutableSet<Entity>) {
-        val e1VO = EntityMergeVO(e1);
-        val e2VO = EntityMergeVO(e2);
+        val e1VO = EntityMergeVO(e1)
+        val e2VO = EntityMergeVO(e2)
 
         if (e1VO.r > e2VO.r) {
             merge(e1VO, e2VO)
@@ -123,15 +140,18 @@ class CollisionSystem : SimulationSystem {
     }
 
     private fun changeVelocitiesAfterElasticCollision(o1: Entity, o2: Entity) {
-        val e1 = EntityElasticVO(o1);
-        val e2 = EntityElasticVO(o2);
+        val e1 = EntityElasticVO(o1)
+        val e2 = EntityElasticVO(o2)
 
         e1.v = calculateVelocityAfterElasticCollision(e1, e2)
         e2.v = calculateVelocityAfterElasticCollision(e2, e1)
     }
 
     private fun calculateVelocityAfterElasticCollision(e1: EntityElasticVO, e2: EntityElasticVO) =
-        e1.v - (e1.position - e2.position) * ((e1.v - e2.v) dotProduct (e1.position - e2.position)) * 2.0 * e2.m / ((e1.m + e2.m) * pow(e1.position.distance(e2.position), 2.0))
+        e1.v - (e1.position - e2.position) * ((e1.v - e2.v) dotProduct (e1.position - e2.position)) * 2.0 * e2.m / ((e1.m + e2.m) * pow(
+            e1.position.distance(e2.position),
+            2.0
+        ))
 
     private fun isElasticCollision(e1: Entity, e2: Entity): Boolean {
         if (e1.hasComponent(Velocity::class) && e2.hasComponent(Velocity::class)) {
@@ -141,7 +161,7 @@ class CollisionSystem : SimulationSystem {
             return collider?.type == CollisionType.ELASTIC || otherCollider?.type == CollisionType.ELASTIC
         }
 
-        return false;
+        return false
     }
 
     private fun isMergeCollision(e1: Entity, e2: Entity): Boolean {
@@ -152,7 +172,7 @@ class CollisionSystem : SimulationSystem {
             return collider?.type == CollisionType.MERGE && otherCollider?.type == CollisionType.MERGE
         }
 
-        return false;
+        return false
     }
 }
 

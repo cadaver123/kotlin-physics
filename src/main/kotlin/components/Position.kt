@@ -4,9 +4,9 @@ import Environment
 import common.Vector
 import components.interfaces.Component
 
-data class Position(val vector: Vector) : Component {
+data class Position(val vec: Vector) : Component {
     fun add(other: Vector): Position {
-        with(vector) {
+        with(vec) {
             x = when {
                 Environment.FINITE_PLANE && x + other.x < 0 -> Environment.ENV_SIZE.x - x + other.x
                 Environment.FINITE_PLANE &&  x + other.x > Environment.ENV_SIZE.x -> x + other.x - Environment.ENV_SIZE.x
@@ -19,6 +19,6 @@ data class Position(val vector: Vector) : Component {
             }
         }
 
-        return this;
-    };
+        return this
+    }
 }

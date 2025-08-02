@@ -3,18 +3,21 @@ package components
 import Environment
 import common.Vector
 import components.interfaces.Component
-import java.lang.Math.pow
-import kotlin.math.sqrt
 
-data class Velocity(var vector: Vector) : Component {
-    fun add(other: Vector): Velocity {
-        val temp = Vector(vector.x + other.x, vector.y + other.y);
-
-        if (temp.length() <= Environment.MAX_VELOCITY) {
-            vector.x = temp.x
-            vector.y = temp.y
+data class Velocity(val vector: Vector) : Component {
+    var vec: Vector = vector
+        set(value) {
+            if (value.length() <= Environment.MAX_VELOCITY) {
+                field = value
+            } else {
+                field = value / value.length() * Environment.MAX_VELOCITY
+            }
         }
 
-        return this;
-    };
+    fun add(other: Vector): Velocity {
+        vec = Vector(vec.x + other.x, vec.y + other.y)
+
+        return this
+    }
+
 }

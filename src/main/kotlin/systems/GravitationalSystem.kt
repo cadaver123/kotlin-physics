@@ -21,9 +21,9 @@ class GravitationalSystem() : AbstractSystem(
                     val position = it.getComponent(Position::class)
 
                     if (velocity != null && position != null) {
-                        val gravityAcc = strength / (sourcePosition.distance(position.vector)).pow(2.0)
+                        val gravityAcc = strength / (sourcePosition.distance(position.vec)).pow(2.0)
                         val gravityAccVec =
-                            (sourcePosition - position.vector).norm() * GRAVITANIONAL_CONSTANT * gravityAcc
+                            (sourcePosition - position.vec).norm() * GRAVITANIONAL_CONSTANT * gravityAcc
 
                         velocity.add(gravityAccVec * deltaT)
                     }

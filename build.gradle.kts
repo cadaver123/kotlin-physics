@@ -1,5 +1,5 @@
 plugins {
-    kotlin("jvm") version "1.8.21"
+    kotlin("jvm") version "2.0.0"
     application
 }
 
@@ -12,7 +12,10 @@ repositories {
 
 dependencies {
     testImplementation(kotlin("test"))
-    implementation("org.jetbrains.kotlin:kotlin-reflect:1.8.22")
+    implementation("org.jetbrains.kotlin:kotlin-reflect")
+    implementation("org.jetbrains.kotlin:kotlin-stdlib")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.10.1")
+    implementation("uk.co.electronstudio.jaylib:jaylib:5.5.+")
 }
 
 tasks.test {
@@ -20,9 +23,9 @@ tasks.test {
 }
 
 kotlin {
-    jvmToolchain(11)
+    jvmToolchain(22)
 }
 
 application {
-    mainClass.set("MainKt")
+    mainClass.set("App")
 }
