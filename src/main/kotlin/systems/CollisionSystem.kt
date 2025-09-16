@@ -116,10 +116,12 @@ class CollisionSystem : SimulationSystem {
 
     private fun merge(target: EntityMergeVO, objToBeMerged: EntityMergeVO) {
         val sumOfMasses = target.m + objToBeMerged.m
-        val newV = (target.v * target.m + objToBeMerged.v * objToBeMerged.m) / sumOfMasses
+        val newVx = (target.v.x * target.m + objToBeMerged.v.x * objToBeMerged.m) / sumOfMasses
+        val newVy = (target.v.y * target.m + objToBeMerged.v.y * objToBeMerged.m) / sumOfMasses
         val newR = sqrt(pow(target.r, 2.0) + pow(objToBeMerged.r, 2.0))
 
-        target.v = newV
+        target.v.x = newVx
+        target.v.y = newVy
         target.r = newR
         target.m = sumOfMasses
 

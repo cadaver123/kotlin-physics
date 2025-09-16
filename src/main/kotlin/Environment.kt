@@ -1,3 +1,4 @@
+
 import common.Vector
 import entities.Entity
 import systems.interfaces.SimulationSystem
@@ -18,6 +19,7 @@ class Environment private constructor() {
 
     class Runner private constructor() {
         companion object {
+            val MS_PER_FRAME = 16;
             fun run() {
                 systems.forEach {
                     thread {
@@ -27,11 +29,20 @@ class Environment private constructor() {
             }
 
             fun runSystem(system: SimulationSystem) {
-                var lastTime: Long = System.nanoTime()
+                val MS_PER_FRAME = 16L // Example: ~60 FPS
+                var lastTime = System.currentTimeMillis()
                 while (true) {
-                    system.updateState((System.nanoTime() - lastTime) / 1000000.0)
-                    lastTime = System.nanoTime()
-                        //Thread.sleep(3)
+                    val currentTime = System.currentTimeMillis()
+                    val deltaTime = currentTime - lastTime
+                    system.updateState(deltaTime.toDouble())
+                    lastTime = currentTime
+
+                    val waitTime = MS_PER_FRAME - (System.currentTimeMillis() - lastTime)
+                    if (waitTime > 0) {
+                        Thread.sleep(waitTime)
+                    } else {
+                        System.out.println("dt = $deltaTime")
+                    }
                 }
             }
         }
