@@ -2,18 +2,13 @@
 import Environment.Companion.CENTER_POINT
 import Environment.Companion.GRAVITANIONAL_CONSTANT
 import common.Vector
-import components.Collider
-import components.CollisionType
 import components.GravitySource
 import components.Position
-import components.Velocity
 import components.shapes.Circle
 import components.shapes.Shape
 import entities.Entity
 import graphics.raylib.Window
-import systems.CollisionSystem
-import systems.DestructionSystem
-import systems.PositionSystem
+import systems.*
 import systems.interfaces.SimulationSystem
 import systems.service.CirclesCollisionDetector
 import kotlin.math.sqrt
@@ -50,9 +45,12 @@ class App {
             systems.addAll(
                 listOf(
                     //GravitationalSystem(),
-                    CollisionSystem(),
-                    PositionSystem(),
-                    DestructionSystem(),
+                    //CollisionSystem(),
+                    //PositionSystem(),
+                    //DestructionSystem(),
+                    PositionSystemX(),
+                    GravitationalSystemX(),
+                    CollisionSystemX()
                 )
             )
         }
@@ -66,22 +64,19 @@ class App {
             addStar(entities, CENTER_POINT)
             //addStar(entities, CENTER_POINT + Vector(100.0, .0))
 
-            for (i in 1..10000) {
+            for (i in 1..9999) {
                 tryAddRandomBodies(entities)
             }
 
         }
 
         private fun addStar(entities: MutableList<Entity>, positionVec: Vector) {
-            entities.add(
-                Entity(
-                    Circle(5.0, Shape.Color(255.toByte(), 0, 0)),
-                    Position(positionVec),
-                    GravitySource(100000.0),
-                    //Velocity(Vector(.0, .0)),
-                    //Destructor(),
-                )
-            )
+            val entity = Entity()
+            entity.addPosition(CENTER_POINT.x, CENTER_POINT.y)
+            entity.addCircle(5.0)
+            entity.addColor(255.toByte(), 0, 0)
+            entity.addGravityForce(10000.0)
+
         }
 
         private fun tryAddRandomBodies(entities: MutableList<Entity>) {
@@ -113,13 +108,12 @@ class App {
             val velocity =
                 (CENTER_POINT - positionVec).getPerpendicularCounterClockwise() * sqrt (GRAVITANIONAL_CONSTANT*100.0/distanceFromCenter)
 
-            return Entity(
-                Circle(size, getRandomColor()),
-                Position(positionVec),
-                Velocity(velocity),
-                Collider(size, CollisionType.MERGE),
-                GravitySource(size)
-            )
+            val entity = Entity()
+            entity.addPosition(positionVec.x, positionVec.y)
+            entity.addVelocity(velocity.x, velocity.y)
+            entity.addCircle(size)
+            entity.addColor(Random.nextInt(0, 255).toByte(), Random.nextInt(0, 255).toByte(), Random.nextInt(0, 255).toByte())
+            return entity
         }
 
         fun getRandomColor() = Shape.Color(Random.nextInt(0, 255).toByte(), Random.nextInt(0, 255).toByte(), Random.nextInt(0, 255).toByte())

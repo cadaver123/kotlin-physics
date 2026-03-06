@@ -1,14 +1,10 @@
 package graphics.raylib
 
 import Environment
+import Environment.Companion.TARGET_FPS
 import com.raylib.Colors.RAYWHITE
-import com.raylib.Raylib.BeginDrawing
-import com.raylib.Raylib.ClearBackground
-import com.raylib.Raylib.CloseWindow
-import com.raylib.Raylib.EndDrawing
-import com.raylib.Raylib.InitWindow
-import com.raylib.Raylib.SetTargetFPS
-import com.raylib.Raylib.WindowShouldClose
+import com.raylib.Colors.RED
+import com.raylib.Raylib.*
 
 class Window {
     companion object {
@@ -17,20 +13,22 @@ class Window {
                 InitWindow(x.toInt(), y.toInt(), "Demo")
             }
 
-            SetTargetFPS(60)
+            SetTargetFPS(TARGET_FPS)
 
             while (!WindowShouldClose()) {
                 BeginDrawing()
                 ClearBackground(RAYWHITE)
-                Environment.entities.forEach {
-                    RaylibRenderer.drawObject(it)
+                RaylibRenderer.drawObjects()
+                RaylibRenderer.drawGrid()
+                RaylibRenderer.drawSquare()
 
-                    //printQuadtree(g)
-            }
+                DrawText(GetFPS().toString(), GetScreenWidth() - 30, GetScreenHeight() - 40, 20, RED);
+                DrawText(Environment.fps.toString(), GetScreenWidth() - 30, GetScreenHeight() - 20, 20, RED);
                 EndDrawing()
             }
 
             CloseWindow()
+            System.exit(0)
         }
     }
 }

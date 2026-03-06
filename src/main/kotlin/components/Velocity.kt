@@ -4,7 +4,8 @@ import Environment
 import common.Vector
 import components.interfaces.Component
 
-data class Velocity(val vector: Vector) : Component {
+class Velocity(val vector: Vector) : Component {
+
     var vec: Vector = vector
         set(value) {
             if (value.length() <= Environment.MAX_VELOCITY) {

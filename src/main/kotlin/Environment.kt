@@ -6,20 +6,22 @@ import kotlin.concurrent.thread
 
 class Environment private constructor() {
     companion object {
-        val ENV_SIZE = Vector(1000.0,1000.0)
-        val MAX_VELOCITY = 1000.0
+        const val WIDTH = 1000
+        const val HEIGHT = 1000
+        val ENV_SIZE = Vector(WIDTH.toDouble(),HEIGHT.toDouble())
+        const val MAX_VELOCITY = 1000.0
         val CENTER_POINT = Vector(ENV_SIZE.x / 2.0, ENV_SIZE.y / 2.0)
-        val FINITE_PLANE = true
-        val GRAVITANIONAL_CONSTANT = 100.0
-
+        const val FINITE_PLANE = true
+        const val GRAVITANIONAL_CONSTANT = 100.0
+        const val TARGET_FPS = 60
 
         var entities: List<Entity> = mutableListOf()
         var systems: List<SimulationSystem> = mutableListOf()
+        var fps: Long = 0
     }
 
     class Runner private constructor() {
         companion object {
-            val MS_PER_FRAME = 16;
             fun run() {
                 systems.forEach {
                     thread {
@@ -29,19 +31,25 @@ class Environment private constructor() {
             }
 
             fun runSystem(system: SimulationSystem) {
-                val MS_PER_FRAME = 16L // Example: ~60 FPS
-                var lastTime = System.currentTimeMillis()
+                var lastTime = System.nanoTime()
+                var lastPrintedFpsTime = 0L
+                val targetDeltaTime = 1.0 / TARGET_FPS // Seconds per frame
+
                 while (true) {
-                    val currentTime = System.currentTimeMillis()
-                    val deltaTime = currentTime - lastTime
-                    system.updateState(deltaTime.toDouble())
+                    val currentTime = System.nanoTime()
+                    val deltaTime = (currentTime - lastTime) / 1_000_000_000.0 // Convert nanoseconds to seconds
                     lastTime = currentTime
 
-                    val waitTime = MS_PER_FRAME - (System.currentTimeMillis() - lastTime)
-                    if (waitTime > 0) {
-                        Thread.sleep(waitTime)
-                    } else {
-                        System.out.println("dt = $deltaTime")
+                    val cappedDeltaTime = minOf(deltaTime, targetDeltaTime * 2.0)
+
+                    system.updateState(cappedDeltaTime)
+
+                    val frameTime = System.nanoTime() - currentTime
+                    val sleepTime = (targetDeltaTime * 1_000_000_000 - frameTime) / 1_000_000 // Nanoseconds to milliseconds
+                    if (sleepTime > 0) Thread.sleep(sleepTime.toLong())
+                    if (currentTime - lastPrintedFpsTime > 500_000_000) {
+                        lastPrintedFpsTime = currentTime
+                        fps = if (frameTime > 0L) 1_000_000_000/(System.nanoTime() - currentTime) else 0
                     }
                 }
             }

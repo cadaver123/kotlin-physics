@@ -11,6 +11,8 @@ class PositionSystem() : AbstractSystem(
             val velocity = it.getComponent(Velocity::class)!!
             val position = it.getComponent(Position::class)!!
             position.add(velocity.vec * delta)
+
+
         }
     }
 )

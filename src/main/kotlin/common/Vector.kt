@@ -4,6 +4,17 @@ import kotlin.math.pow
 import kotlin.math.sqrt
 
 data class Vector(var x: Double, var y: Double) {
+
+    companion object {
+        fun distance(x1: Double, y1: Double, x2: Double, y2: Double): Double {
+            return sqrt((x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2))
+        }
+
+        fun distanceSquared(x1: Double, y1: Double, x2: Double, y2: Double): Double {
+            return (x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2)
+        }
+    }
+
     operator fun plus(other: Vector): Vector {
         return Vector(x + other.x, y + other.y)
     }
