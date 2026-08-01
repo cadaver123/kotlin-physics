@@ -29,17 +29,17 @@ class Entity(vararg val components: Component) {
     }
 
     fun addCircle(radius: Double) {
-        (ComponentsManager.getComponent(ComponentType.SHAPE_CIRCLE) as CircleComponent).attachWithLock(id, radius)
+        (ComponentsManager.getComponent(ComponentType.SHAPE_CIRCLE) as CircleComponent).attach(id, radius)
         componentsSet[id].set(ComponentType.SHAPE_CIRCLE.ordinal)
     }
 
     fun addColor(initialR: Byte, initialG: Byte, initialB: Byte) {
-        (ComponentsManager.getComponent(ComponentType.COLOR) as ColorComponent).attachWithLock(id, initialR, initialG, initialB)
+        (ComponentsManager.getComponent(ComponentType.COLOR) as ColorComponent).attach(id, initialR, initialG, initialB)
         componentsSet[id].set(ComponentType.COLOR.ordinal)
     }
 
     fun addGravityForce(strength: Double) {
-        (ComponentsManager.getComponent(ComponentType.GRAVITY_SOURCE) as GravitySourceComponent).attachWithLock(id, strength)
+        (ComponentsManager.getComponent(ComponentType.GRAVITY_SOURCE) as GravitySourceComponent).attach(id, strength)
         componentsSet[id].set(ComponentType.GRAVITY_SOURCE.ordinal)
     }
 

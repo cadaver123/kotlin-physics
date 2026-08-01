@@ -98,7 +98,7 @@ class CollisionSystem : SimulationSystem {
             }
         }
 
-        Environment.entities = Environment.entities.filter { !objectsToRemove.contains(it) }
+        Environment.removeEntities(objectsToRemove)
     }
 
     private fun doMergeCollision(e1: Entity, e2: Entity, objectsToRemove: MutableSet<Entity>) {

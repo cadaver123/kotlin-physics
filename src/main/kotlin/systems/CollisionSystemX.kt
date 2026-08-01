@@ -1,14 +1,13 @@
+/*
 package systems
 
 import Environment
 import common.IntLinkedList
-import common.Helper.Companion.getTightRangeX
-import common.Helper.Companion.getTightRangeY
 import components.ComponentType
 import components.ComponentsManager
 import components.PositionComponent
 import components.grids.LooseGrid
-import components.grids.LooseTightGrid.Companion.TIGHT_CELL_WIDTH
+import components.grids.LooseTightGrid
 import systems.interfaces.SimulationSystem
 import kotlin.concurrent.withLock
 import kotlin.math.ceil
@@ -18,8 +17,8 @@ import kotlin.math.min
 
 class CollisionSystemX : SimulationSystem {
     companion object {
-        const val LOOSE_CELL_WIDTH: Double = TIGHT_CELL_WIDTH /10.0;
-        const val LOOSE_CELL_HEIGHT: Double = TIGHT_CELL_HEIGHT/10.0;
+        const val LOOSE_CELL_WIDTH: Double = LooseTightGrid.TIGHT_CELL_WIDTH /10.0;
+        const val LOOSE_CELL_HEIGHT: Double = LooseTightGrid.TIGHT_CELL_HEIGHT/10.0;
 
         const val LOOSE_INV_CELL_WIDTH: Double = 1.0 / LOOSE_CELL_WIDTH
         const val LOOSE_INV_CELL_HEIGHT: Double = 1.0 / LOOSE_CELL_HEIGHT
@@ -29,8 +28,8 @@ class CollisionSystemX : SimulationSystem {
     }
 
     var initiated: Boolean = false
-    val cleanArray: IntArray = IntArray(TIGHT_CELLS_COUNT) { -1 }
-    val tightGridHeadsIds: IntArray = IntArray(TIGHT_CELLS_COUNT) { -1 }
+    val cleanArray: IntArray = IntArray(LooseTightGrid.TIGHT_CELLS_COUNT) { -1 }
+    val tightGridHeadsIds: IntArray = IntArray(LooseTightGrid.TIGHT_CELLS_COUNT) { -1 }
     lateinit var looseGrid: LooseGrid
     val tightGridEntities: IntLinkedList = IntLinkedList()
     val gridEntityIds: IntLinkedList = IntLinkedList()
@@ -64,7 +63,7 @@ class CollisionSystemX : SimulationSystem {
 
             for (x in xRangeStart..xRangeEnd) {
                 for (y in yRangeStart..yRangeEnd) {
-                  //  tightGridHeadsIds[y * TIGHT_COLUMNS_COUNT + x] =
+                  //  tightGridHeadsIds[x + y * TIGHT_COLUMNS_COUNT] =
                 }
             }
 
@@ -79,3 +78,4 @@ class CollisionSystemX : SimulationSystem {
 
 }
 
+*/

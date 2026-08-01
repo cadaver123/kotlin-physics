@@ -1,7 +1,6 @@
 package systems
 
 import Environment
-import Environment.Companion.GRAVITANIONAL_CONSTANT
 import components.GravitySource
 import components.Position
 import components.Velocity
@@ -23,7 +22,7 @@ class GravitationalSystem() : AbstractSystem(
                     if (velocity != null && position != null) {
                         val gravityAcc = strength / (sourcePosition.distance(position.vec)).pow(2.0)
                         val gravityAccVec =
-                            (sourcePosition - position.vec).norm() * GRAVITANIONAL_CONSTANT * gravityAcc
+                            (sourcePosition - position.vec).norm() * Environment.GRAVITATIONAL_CONSTANT * gravityAcc
 
                         velocity.add(gravityAccVec * deltaT)
                     }

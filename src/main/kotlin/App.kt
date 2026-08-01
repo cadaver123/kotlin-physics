@@ -1,14 +1,11 @@
 
-import Environment.Companion.CENTER_POINT
-import Environment.Companion.GRAVITANIONAL_CONSTANT
 import common.Vector
-import components.GravitySource
-import components.Position
 import components.shapes.Circle
 import components.shapes.Shape
 import entities.Entity
 import graphics.raylib.Window
-import systems.*
+import systems.GravitationalSystemX
+import systems.PositionSystemX
 import systems.interfaces.SimulationSystem
 import systems.service.CirclesCollisionDetector
 import kotlin.math.sqrt
@@ -26,8 +23,7 @@ class App {
             prepareSystems(systems)
             prepareEntities(entities)
 
-            Environment.entities = entities
-            Environment.systems = systems
+            Environment.init(entities, systems)
 
 /*
             EventQueue.invokeLater {
@@ -37,7 +33,6 @@ class App {
             }
 */
 
-            Environment.Runner.run()
             Window.start()
         }
 
@@ -50,7 +45,7 @@ class App {
                     //DestructionSystem(),
                     PositionSystemX(),
                     GravitationalSystemX(),
-                    CollisionSystemX()
+                    //CollisionSystemX()
                 )
             )
         }
@@ -61,7 +56,7 @@ class App {
 //            Environment.entities.add(Entity(Circle(10.0, Color.BLUE), Position(CENTER_POINT + Vector(20.0, .0)), Velocity(Vector(10.0, .0)), Weight(1.0)))
 
 
-            addStar(entities, CENTER_POINT)
+            addStar(entities, Environment.CENTER_POINT)
             //addStar(entities, CENTER_POINT + Vector(100.0, .0))
 
             for (i in 1..9999) {
@@ -72,7 +67,7 @@ class App {
 
         private fun addStar(entities: MutableList<Entity>, positionVec: Vector) {
             val entity = Entity()
-            entity.addPosition(CENTER_POINT.x, CENTER_POINT.y)
+            entity.addPosition(Environment.CENTER_POINT.x, Environment.CENTER_POINT.y)
             entity.addCircle(5.0)
             entity.addColor(255.toByte(), 0, 0)
             entity.addGravityForce(10000.0)
@@ -98,7 +93,7 @@ class App {
         }
 
         fun getRandomBodyEntity(): Entity {
-            val center = CENTER_POINT
+            val center = Environment.CENTER_POINT
             val size = Random.nextDouble(1.0, 2.0)
             val positionVec = Vector(
                 Random.nextDouble(center.x - 400, center.x + 400),
@@ -106,7 +101,7 @@ class App {
             )
             val distanceFromCenter = center.distance(positionVec)
             val velocity =
-                (CENTER_POINT - positionVec).getPerpendicularCounterClockwise() * sqrt (GRAVITANIONAL_CONSTANT*100.0/distanceFromCenter)
+                (Environment.CENTER_POINT - positionVec).getPerpendicularCounterClockwise() * sqrt (Environment.GRAVITATIONAL_CONSTANT*100.0/distanceFromCenter)
 
             val entity = Entity()
             entity.addPosition(positionVec.x, positionVec.y)

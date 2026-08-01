@@ -1,3 +1,4 @@
+/*
 package systems
 
 import Environment
@@ -19,4 +20,4 @@ class DestructionSystem : AbstractSystem(
             }
         }
     }
-)
+)*/
