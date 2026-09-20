@@ -42,6 +42,6 @@ data class Vector(var x: Double, var y: Double) {
     infix fun dotProduct(other: Vector): Double = x * other.x + y * other.y
 
     fun distance(other: Vector): Double {
-        return sqrt((x - other.x).pow(2.0) + (y - other.y).pow(2.0))
+        return sqrt((x - other.x).toDouble().pow(2.0) + (y - other.y).toDouble().pow(2.0)).toDouble()
     }
 }

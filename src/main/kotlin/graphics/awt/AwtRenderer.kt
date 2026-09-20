@@ -1,3 +1,4 @@
+/*
 package graphics.awt
 
 import components.Position
@@ -26,4 +27,4 @@ class AwtRenderer private constructor() {
             }
         }
     }
-}
+}*/

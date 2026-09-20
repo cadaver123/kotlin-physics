@@ -1,3 +1,5 @@
 package components.interfaces
 
-interface Component
+interface Component {
+    fun detach(entityId: Int)
+}

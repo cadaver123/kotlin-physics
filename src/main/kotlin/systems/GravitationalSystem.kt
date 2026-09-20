@@ -1,9 +1,9 @@
+/*
 package systems
 
 import Environment
 import components.GravitySource
 import components.Position
-import components.Velocity
 import entities.Entity
 import kotlin.math.pow
 
@@ -31,4 +31,4 @@ class GravitationalSystem() : AbstractSystem(
 
 
     }
-)
+)*/

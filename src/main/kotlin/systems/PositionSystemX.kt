@@ -29,7 +29,7 @@ class PositionSystemX : SimulationSystem {
                     else -> y + dy
                 }
                 if(dy != 0.0 || dx != 0.0) {
-                    Environment.grid.move(entityId)
+                    Environment.grid.updateGrid(entityId)
                 }
             }
         }

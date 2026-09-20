@@ -1,3 +1,4 @@
+/*
 package systems
 
 import Environment
@@ -178,3 +179,4 @@ class CollisionSystem : SimulationSystem {
     }
 }
 
+*/

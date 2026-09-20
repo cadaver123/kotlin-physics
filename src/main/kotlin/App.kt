@@ -1,15 +1,18 @@
-
 import common.Vector
-import components.shapes.Circle
-import components.shapes.Shape
+import components.CollisionType
+import components.ComponentType
+import components.ComponentsManager
+import components.generic.Component1D
+import components.generic.Component2D
+import components.generic.flagsOf
 import entities.Entity
 import graphics.raylib.Window
+import kotlin.math.sqrt
+import kotlin.random.Random
+import systems.CollisionSystemX
 import systems.GravitationalSystemX
 import systems.PositionSystemX
 import systems.interfaces.SimulationSystem
-import systems.service.CirclesCollisionDetector
-import kotlin.math.sqrt
-import kotlin.random.Random
 
 
 class App {
@@ -20,18 +23,18 @@ class App {
             val entities = mutableListOf<Entity>()
             val systems = mutableListOf<SimulationSystem>()
 
-            prepareSystems(systems)
             prepareEntities(entities)
+            prepareSystems(systems)
 
             Environment.init(entities, systems)
 
-/*
-            EventQueue.invokeLater {
-                val ex = Window()
-                ex.isVisible = true
+            /*
+                        EventQueue.invokeLater {
+                            val ex = Window()
+                            ex.isVisible = true
 
-            }
-*/
+                        }
+            */
 
             Window.start()
         }
@@ -44,6 +47,7 @@ class App {
                     //PositionSystem(),
                     //DestructionSystem(),
                     PositionSystemX(),
+                    CollisionSystemX(),
                     GravitationalSystemX(),
                     //CollisionSystemX()
                 )
@@ -66,52 +70,55 @@ class App {
         }
 
         private fun addStar(entities: MutableList<Entity>, positionVec: Vector) {
-            val entity = Entity()
+            val entity = Entity(flags = flagsOf())
             entity.addPosition(Environment.CENTER_POINT.x, Environment.CENTER_POINT.y)
+            entity.addVelocity(0.0, 0.0)
             entity.addCircle(5.0)
             entity.addColor(255.toByte(), 0, 0)
             entity.addGravityForce(10000.0)
+            entity.addCollision(10000.0, CollisionType.ELASTIC)
+            entities.add(entity)
 
         }
 
         private fun tryAddRandomBodies(entities: MutableList<Entity>) {
+            val positions = ComponentsManager.getComponent(ComponentType.POSITION) as Component2D
+            val circles = ComponentsManager.getComponent(ComponentType.SHAPE_CIRCLE) as Component1D
             outer@ for (i in 1..10) {
-                val circleEntity = getRandomBodyEntity()
-
+                val center = Environment.CENTER_POINT
+                val r = Random.nextDouble(1.0, 2.0)
+                val x = Random.nextDouble(center.x - 400.0, center.x + 400.0)
+                val y = Random.nextDouble(center.y - 400.0, center.y + 400.0)
+                
                 for (otherEntity in entities) {
-                    if (otherEntity.hasComponent(Circle::class)) {
-
-                        if (CirclesCollisionDetector.isColliding(circleEntity, otherEntity)) {
-                            outer@ continue
-                        }
+                    val otherX = positions.x[positions.entitiesMap[otherEntity.id]!!]
+                    val otherY = positions.y[positions.entitiesMap[otherEntity.id]!!]
+                    val otherR = circles.values[circles.entitiesMap[otherEntity.id]!!]
+                    if ((x - otherX) * (x - otherX) + (y - otherY) * (y - otherY) <= (r + otherR) * (r + otherR)) {
+                        outer@ continue
                     }
                 }
+                val distanceFromCenter = sqrt((Environment.CENTER_POINT.x - x) * (Environment.CENTER_POINT.x - x) + (Environment.CENTER_POINT.y - y) * (Environment.CENTER_POINT.y - y))
+                val velocityFactor = sqrt(100.0 / distanceFromCenter)
+                val velocityX = y/distanceFromCenter * velocityFactor
+                val velocityY = -x /distanceFromCenter * velocityFactor
 
-                entities.add(circleEntity)
+                val entity = Entity(flags = flagsOf())
+                entity.addPosition(x, y)
+                entity.addVelocity(velocityX, velocityY)
+                entity.addCircle(r)
+                entity.addColor(
+                    Random.nextInt(0, 255).toByte(),
+                    Random.nextInt(0, 255).toByte(),
+                    Random.nextInt(0, 255).toByte()
+                )
+                entity.addCollision(1.0, CollisionType.ELASTIC)
+
+                entities.add(entity)
                 break
             }
         }
 
-        fun getRandomBodyEntity(): Entity {
-            val center = Environment.CENTER_POINT
-            val size = Random.nextDouble(1.0, 2.0)
-            val positionVec = Vector(
-                Random.nextDouble(center.x - 400, center.x + 400),
-                Random.nextDouble(center.y - 400, center.y + 400)
-            )
-            val distanceFromCenter = center.distance(positionVec)
-            val velocity =
-                (Environment.CENTER_POINT - positionVec).getPerpendicularCounterClockwise() * sqrt (Environment.GRAVITATIONAL_CONSTANT*100.0/distanceFromCenter)
-
-            val entity = Entity()
-            entity.addPosition(positionVec.x, positionVec.y)
-            entity.addVelocity(velocity.x, velocity.y)
-            entity.addCircle(size)
-            entity.addColor(Random.nextInt(0, 255).toByte(), Random.nextInt(0, 255).toByte(), Random.nextInt(0, 255).toByte())
-            return entity
-        }
-
-        fun getRandomColor() = Shape.Color(Random.nextInt(0, 255).toByte(), Random.nextInt(0, 255).toByte(), Random.nextInt(0, 255).toByte())
 
     }
 

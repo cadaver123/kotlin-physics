@@ -10,22 +10,134 @@ import components.ComponentsManager
 import components.generic.Component1D
 import components.generic.Component2D
 import components.grids.LooseTightDoubleGrid
+import java.nio.FloatBuffer
+import kotlin.properties.Delegates
 import org.bytedeco.javacpp.FloatPointer
-import org.bytedeco.javacpp.Pointer
 
 object RaylibRenderer {
-    val vaoId: Int
-    val vboId: Int
+    var VAO_ID: Int by Delegates.notNull()
+    var VBO_ID_QUAD: Int by Delegates.notNull()
+    var VBO_ID_POSITIONS: Int by Delegates.notNull()
+    var VBO_ID_RADIUS: Int by Delegates.notNull()
+    var PROGRAM_ID: Int by Delegates.notNull()
+    var POSITION_BUFFER: FloatPointer  = FloatPointer(MAX_CIRCLES * 2L)
+    var POSITION_BUFFER_VIEW: FloatBuffer  = POSITION_BUFFER.asBuffer()
+    var RADIUS_BUFFER: FloatPointer  = FloatPointer(MAX_CIRCLES * 1L)
+    var RADIUS_BUFFER_VIEW: FloatBuffer  = RADIUS_BUFFER.asBuffer()
 
-    init {
-        vaoId = Raylib.rlLoadVertexArray()
-        vboId = Raylib.rlLoadVertexBuffer(FloatPointer(-1.0f, -1.0f, -1.0f, 1.0f, 1.0f, -1.0f, 1.0f, 1.0f, 1.0f, -1.0f, -1.0f, 1.0f), 12*4, false)
-        Raylib.rlSetVertexAttribute(0, 2, Raylib.RL_FLOAT, false, 8, 0)
+
+    private const val MAX_CIRCLES = 10_000
+
+    private val VERTEX_SHADER_SRC = loadShader("/shaders/circles.vert")
+
+    private val FRAGMENT_SHADER_SRC = loadShader("/shaders/circles.frag")
+
+    fun init() {
+        VAO_ID = Raylib.rlLoadVertexArray()
+        Raylib.rlEnableVertexArray(VAO_ID)
+        initializeVboQuad()
+        initializeVboCenters()
+        initializeVboRadius()
+        val vsId = Raylib.rlCompileShader(VERTEX_SHADER_SRC, Raylib.RL_VERTEX_SHADER)
+        val fsId = Raylib.rlCompileShader(FRAGMENT_SHADER_SRC, Raylib.RL_FRAGMENT_SHADER)
+        FRAGMENT_SHADER_SRC.lines().forEachIndexed { i, l -> println("${i + 1}: [$l]") }
+        PROGRAM_ID = Raylib.rlLoadShaderProgram(vsId, fsId)
+        val uResolutionLoc = Raylib.rlGetLocationUniform(PROGRAM_ID, "uResolution")
+        val uMinXLoc = Raylib.rlGetLocationUniform(PROGRAM_ID, "uMinX")
+        val uMaxXLoc = Raylib.rlGetLocationUniform(PROGRAM_ID, "uMaxX")
+        val uMinYLoc = Raylib.rlGetLocationUniform(PROGRAM_ID, "uMinY")
+        val uMaxYLoc = Raylib.rlGetLocationUniform(PROGRAM_ID, "uMaxY")
+        Raylib.rlEnableShader(PROGRAM_ID)
+        Raylib.rlSetUniform(
+            uResolutionLoc,
+            FloatPointer(Raylib.rlGetFramebufferWidth().toFloat(), Raylib.rlGetFramebufferHeight().toFloat()),
+            Raylib.RL_SHADER_UNIFORM_VEC2,
+            1
+        )
+
+        Raylib.rlSetUniform(uMinXLoc, FloatPointer(.0f), Raylib.RL_SHADER_UNIFORM_FLOAT, 1)
+        Raylib.rlSetUniform(uMaxXLoc, FloatPointer(Environment.WIDTH.toFloat()), Raylib.RL_SHADER_UNIFORM_FLOAT, 1)
+        Raylib.rlSetUniform(uMinYLoc, FloatPointer(.0f), Raylib.RL_SHADER_UNIFORM_FLOAT, 1)
+        Raylib.rlSetUniform(uMaxYLoc, FloatPointer(Environment.HEIGHT.toFloat()), Raylib.RL_SHADER_UNIFORM_FLOAT, 1)
+
+        println("VAO_ID $VAO_ID VBO_ID $VBO_ID_QUAD vsId $vsId - fsId $fsId - programId $PROGRAM_ID")
+        if (vsId == 0 || fsId == 0 || PROGRAM_ID == 0) {
+            throw IllegalStateException("There is some problem with shaders - vsId $vsId - fsId $fsId - programId $PROGRAM_ID")
+        }
+    }
+
+    private fun initializeVboQuad() {
+        VBO_ID_QUAD = Raylib.rlLoadVertexBuffer(
+            FloatPointer(
+                -1.0f, -1.0f,
+                1.0f, 1.0f,
+                -1.0f, 1.0f,
+                -1.0f, -1.0f,
+                1.0f, -1.0f,
+                1.0f, 1.0f
+            ), 12 * 4, false
+        )
+        Raylib.rlSetVertexAttribute(0, 2, Raylib.RL_FLOAT, false, 2 * Float.SIZE_BYTES, 0)
         Raylib.rlEnableVertexAttribute(0)
+    }
+
+    private fun initializeVboCenters() {
+
+        VBO_ID_POSITIONS = Raylib.rlLoadVertexBuffer(
+            POSITION_BUFFER,
+            10_000 * 2 * Float.SIZE_BYTES,
+            true
+        )
+        Raylib.rlEnableVertexBuffer(VBO_ID_POSITIONS)
+        Raylib.rlSetVertexAttribute(1, 2, Raylib.RL_FLOAT, false, 2 * Float.SIZE_BYTES, 0)
+        Raylib.rlSetVertexAttributeDivisor(1, 1)
+        Raylib.rlEnableVertexAttribute(1)
+    }
+
+    private fun initializeVboRadius() {
+
+
+        VBO_ID_RADIUS = Raylib.rlLoadVertexBuffer(
+            RADIUS_BUFFER,
+            10_000 * 1 * Float.SIZE_BYTES,
+            false
+        )
+        Raylib.rlEnableVertexBuffer(VBO_ID_RADIUS)
+        Raylib.rlSetVertexAttribute(2, 1, Raylib.RL_FLOAT, false, 1 * Float.SIZE_BYTES, 0)
+        Raylib.rlSetVertexAttributeDivisor(2, 1)
+        Raylib.rlEnableVertexAttribute(2)   
     }
 
 
     private var queryBuffer = IntArray(10000)
+
+
+    fun renderScene() {
+        val positions = ComponentsManager.getComponent(ComponentType.POSITION) as Component2D
+        val circles = ComponentsManager.getComponent(ComponentType.SHAPE_CIRCLE) as Component1D
+
+        Raylib.rlEnableVertexArray(VAO_ID)
+        Raylib.rlEnableShader(PROGRAM_ID)
+        for (i in 0 until positions.freeIdx) {
+            val x = positions.x[i].toFloat()
+            val y = positions.y[i].toFloat()
+            POSITION_BUFFER_VIEW.put(2 * i, x)
+            POSITION_BUFFER_VIEW.put(2 * i + 1, y)
+        }
+        for (i in 0 until circles.freeIdx) {
+            RADIUS_BUFFER_VIEW.put(i, circles.values[i].toFloat())
+        }
+        Raylib.rlUpdateVertexBuffer(VBO_ID_POSITIONS, POSITION_BUFFER, positions.freeIdx * 2 * 4, 0)
+        Raylib.rlUpdateVertexBuffer(VBO_ID_RADIUS, RADIUS_BUFFER, circles.freeIdx * 4, 0)
+        Raylib.rlDrawVertexArrayInstanced(0, 6, positions.freeIdx)
+        Raylib.rlDisableShader()
+        Raylib.rlDisableVertexArray()
+        Raylib.rlDrawRenderBatchActive()
+        /*    drawObjects()
+            drawGrid()
+            drawSquare()*/
+    }
+
 
     fun drawObjects() {
         drawCircle()
@@ -100,7 +212,7 @@ object RaylibRenderer {
                         if (r > 1.0) {
                             val (x, y) = entity.getComponent(Position::class)!!.vec
                             val raylibColor = Raylib.Color().r(color.r).g(color.g).b(color.b).a(255.toByte())
-                            DrawCircle(x.toInt(), y.toInt(), r.toFloat(), raylibColor)
+                            DrawCircle(x.toInt(), y.toInt(), r.toDouble(), raylibColor)
                         }
                     }*/
 
@@ -123,5 +235,9 @@ object RaylibRenderer {
             }
         }
     }
+
+    private fun loadShader(path: String): String =
+        javaClass.getResource(path)?.readText()
+            ?: error("Couldn't find shader: $path")
 }
 

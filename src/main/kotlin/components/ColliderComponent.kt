@@ -1,28 +1,33 @@
-package components.generic
+package components;
 
 import components.interfaces.Component
 
-open class Component2D(n: Int) : Component {
+enum class CollisionType {
+    ELASTIC,
+    MERGE
+}
+
+class ColliderComponent : Component {
+
     var freeIdx = 0
-    val x = DoubleArray(n)
-    val y = DoubleArray(n)
     val entitiesMap = HashMap<Int, Int>(10000)
+    var mass = DoubleArray(10000)
+    val type = Array<CollisionType>(10000) { CollisionType.ELASTIC }
     val idxToEntity = HashMap<Int, Int>(10000)
 
-    fun attachComponentToEntity(entityId: Int, initialX: Double, initialY: Double) {
-        x[freeIdx] = initialX
-        y[freeIdx] = initialY
-        entitiesMap[entityId] = freeIdx
+    fun attach(entityId: Int, mass: Double, type: CollisionType) {
+        this.mass[freeIdx] = mass
+        this.type[freeIdx] = type
         idxToEntity[freeIdx] = entityId
-        freeIdx++
+        entitiesMap[entityId] = freeIdx++
     }
 
     override fun detach(entityId: Int) {
         val hole = entitiesMap.remove(entityId)!!
         val lastElementIdx = freeIdx - 1
         if(hole != lastElementIdx) {
-            x[hole] = x[lastElementIdx]
-            y[hole] = y[lastElementIdx]
+            mass[hole] = mass[lastElementIdx]
+            type[hole] = type[lastElementIdx]
             val movedEntityId = idxToEntity[lastElementIdx]!!
             idxToEntity[hole] = movedEntityId
             entitiesMap[movedEntityId] = hole
@@ -30,13 +35,6 @@ open class Component2D(n: Int) : Component {
         idxToEntity.remove(lastElementIdx)
         freeIdx--
     }
-
-    fun getX(entityId: Int): Double {
-        return x[entitiesMap[entityId]!!]
-    }
-
-    fun getY(entityId: Int): Double {
-        return y[entitiesMap[entityId]!!]
-    }
 }
+
 

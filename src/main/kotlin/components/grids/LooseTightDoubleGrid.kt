@@ -64,7 +64,7 @@ class LooseTightDoubleGrid {
     }
 
     fun add(entityId: Int) {
-        val looseCell = looseCellOf(positions.getX(entityId), positions.getY(entityId))
+        val looseCell = looseCellOf(positions.x[positions.entitiesMap[entityId]!!], positions.y[positions.entitiesMap[entityId]!!])
         updateCellSizeAndAssignToTightGrid(entityId, looseCell)
         val oldHead = looseGridLinkedListHead[looseCell]
         val linkedListNode = looseGridEntityIds.add(entityId, oldHead)
@@ -75,9 +75,9 @@ class LooseTightDoubleGrid {
     }
 
     private fun updateCellSizeAndAssignToTightGrid(entityId: Int, looseCell: Int) {
-        val r = shapes.values[entityId]
-        val x = positions.x[entityId]
-        val y = positions.y[entityId]
+        val r = shapes.values[shapes.entitiesMap[entityId]!!]
+        val x = positions.x[positions.entitiesMap[entityId]!!]
+        val y = positions.y[positions.entitiesMap[entityId]!!]
         val newXMin = min(xMin[looseCell], x - r)
         val newYMin = min(yMin[looseCell], y - r)
         val newXMax = max(xMax[looseCell], x + r)
@@ -116,13 +116,13 @@ class LooseTightDoubleGrid {
     }
 
 
-    fun move(entityId: Int) {
-        val newCell = looseCellOf(positions.getX(entityId), positions.getY(entityId))
+    fun updateGrid(entityId: Int) {
+        val newCell = looseCellOf(positions.x[positions.entitiesMap[entityId]!!], positions.y[positions.entitiesMap[entityId]!!])
         val oldLooseCell = entityToLooseCell[entityId]
         if (newCell == oldLooseCell) {
-            val r = shapes.values[entityId]
-            val x = positions.x[entityId]
-            val y = positions.y[entityId]
+            val r = shapes.values[shapes.entitiesMap[entityId]!!]
+            val x = positions.x[positions.entitiesMap[entityId]!!]
+            val y = positions.y[positions.entitiesMap[entityId]!!]
 
             if (xMin[oldLooseCell] > x - r ||
                 yMin[oldLooseCell] > y - r ||
@@ -251,9 +251,9 @@ class LooseTightDoubleGrid {
                     var currentEntityIdx = looseGridLinkedListHead[currentLooseCellIdx]
                     while (currentEntityIdx != -1) {
                         val entityId = looseGridEntityIds.values[currentEntityIdx]
-                        val r = shapes.values[entityId]
-                        val x = positions.x[entityId]
-                        val y = positions.y[entityId]
+                        val r = shapes.values[shapes.entitiesMap[entityId]!!]
+                        val x = positions.x[positions.entitiesMap[entityId]!!]
+                        val y = positions.y[positions.entitiesMap[entityId]!!]
                         if ((xMin < x + r && x - r < xMax) && (yMin < y + r && y - r < yMax)) {
                             outBufferWithEntityIds[counter] = entityId
                             counter++

@@ -9,5 +9,6 @@ enum class ComponentType(val clazz: KClass<out Component>?) {
     VELOCITY(VelocityComponent::class),
     COLOR(ColorComponent::class),
     SHAPE_CIRCLE(CircleComponent::class),
-    GRAVITY_SOURCE(GravitySourceComponent::class)
+    GRAVITY_SOURCE(GravitySourceComponent::class),
+    COLLISION(ColliderComponent::class)
 }

@@ -1,30 +1,44 @@
 package entities;
 
-import components.*
+import components.ColliderComponent
+import components.CollisionType
+import components.ColorComponent
+import components.ComponentType
+import components.ComponentsManager
+import components.GravitySourceComponent
+import components.PositionComponent
+import components.VelocityComponent
+import components.generic.Component2D
+import components.generic.Flags
 import components.interfaces.Component
 import components.shapes.CircleComponent
-import java.util.BitSet
-import java.util.concurrent.atomic.AtomicInteger
+import java.util.*
 import kotlin.reflect.KClass
 
 @Suppress("UNCHECKED_CAST")
-class Entity(vararg val components: Component) {
+class Entity(vararg var components: Component, var flags: Flags) {
     companion object {
-        val lastId = AtomicInteger(0)
+        var lastId = 0
         val componentsSet: Array<BitSet> = Array(10000) { BitSet(64) }
     }
 
-    val id = lastId.getAndIncrement()
-
-
+    val id = lastId++
 
     fun addPosition(initialX: Double, initialY: Double) {
-        (ComponentsManager.getComponent(ComponentType.POSITION) as PositionComponent).attachComponentToEntity(id, initialX, initialY)
+        (ComponentsManager.getComponent(ComponentType.POSITION) as Component2D).attachComponentToEntity(
+            id,
+            initialX,
+            initialY
+        )
         componentsSet[id].set(ComponentType.POSITION.ordinal)
     }
 
     fun addVelocity(initialX: Double, initialY: Double) {
-        (ComponentsManager.getComponent(ComponentType.VELOCITY) as VelocityComponent).attachComponentToEntity(id, initialX, initialY)
+        (ComponentsManager.getComponent(ComponentType.VELOCITY) as VelocityComponent).attachComponentToEntity(
+            id,
+            initialX,
+            initialY
+        )
         componentsSet[id].set(ComponentType.VELOCITY.ordinal)
     }
 
@@ -43,11 +57,28 @@ class Entity(vararg val components: Component) {
         componentsSet[id].set(ComponentType.GRAVITY_SOURCE.ordinal)
     }
 
+    fun addCollision(mass: Double, type: CollisionType) {
+        (ComponentsManager.getComponent(ComponentType.COLLISION) as ColliderComponent).attach(id, mass, type)
+        componentsSet[id].set(ComponentType.COLLISION.ordinal)
+    }
+
 
     fun <T : Component> getComponent(clazz: KClass<T>): T? =
         components.find { clazz.java.isAssignableFrom(it::class.java) } as T?
 
     fun <T : Component> hasComponent(clazz: KClass<T>): Boolean =
         components.any { clazz.java.isAssignableFrom(it::class.java) }
+
+    fun hasComponent(type: ComponentType): Boolean =
+        componentsSet[id].get(type.ordinal)
+
+    fun removeComponents() {
+        ComponentType.values().forEach {
+            if(componentsSet[id].get(it.ordinal)) {
+                ComponentsManager.getComponent(it).detach(id)
+                componentsSet[id].set(it.ordinal, false)
+            }
+        }
+    }
 
 }

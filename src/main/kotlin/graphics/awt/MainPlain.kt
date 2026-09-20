@@ -1,9 +1,6 @@
 package graphics.awt
 
 import Environment
-import components.shapes.Circle
-import processing.AABB
-import processing.Quadtree
 import java.awt.Graphics
 import java.util.ArrayDeque
 import javax.swing.JPanel
@@ -18,11 +15,11 @@ internal class MainPlain : JPanel() {
     private fun renderObjects(g: Graphics) {
 
         Environment.entities.forEach {
-            AwtRenderer.drawObject(it, g) }
-
+            // AwtRenderer.drawObject(it, g) }
+        }
         //printQuadtree(g)
     }
-
+/*
     private fun printQuadtree(g: Graphics) {
         var tree = Quadtree(AABB(Environment.CENTER_POINT, Environment.ENV_SIZE.x, Environment.ENV_SIZE.y))
         Environment.entities.forEach {
@@ -46,5 +43,5 @@ internal class MainPlain : JPanel() {
                 )
             }
         }
-    }
+    }*/
 }

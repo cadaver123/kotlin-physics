@@ -1,8 +1,8 @@
+/*
 package processing;
 
 import common.Vector
 import components.Position
-import components.shapes.Circle
 import entities.Entity
 
 
@@ -40,3 +40,4 @@ data class AABB(val center: Vector, val halfWidth: Double, val halfHeight: Doubl
         return (dx * dx + dy * dy) <= radius * radius
     }
 }
+*/

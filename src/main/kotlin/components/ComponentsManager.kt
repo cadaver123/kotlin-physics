@@ -11,7 +11,8 @@ class ComponentsManager {
             VelocityComponent(10000),
             ColorComponent(),
             CircleComponent(10000),
-            GravitySourceComponent(10000)
+            GravitySourceComponent(10000),
+            ColliderComponent()
 
         )
 
