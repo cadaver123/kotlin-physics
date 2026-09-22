@@ -6,7 +6,7 @@ import components.ComponentsManager
 import components.generic.Component2D
 import systems.interfaces.SimulationSystem
 
-class PositionSystemX : SimulationSystem {
+class PositionSystem : SimulationSystem {
     override fun updateState(dt: Double) {
         val velocities = ComponentsManager.getComponent(ComponentType.VELOCITY) as Component2D
         val positions = ComponentsManager.getComponent(ComponentType.POSITION) as Component2D

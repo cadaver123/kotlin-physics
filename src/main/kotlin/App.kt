@@ -9,9 +9,9 @@ import entities.Entity
 import graphics.raylib.Window
 import kotlin.math.sqrt
 import kotlin.random.Random
-import systems.CollisionSystemX
+import systems.CollisionSystem
 import systems.GravitationalSystemX
-import systems.PositionSystemX
+import systems.PositionSystem
 import systems.interfaces.SimulationSystem
 
 
@@ -46,8 +46,8 @@ class App {
                     //CollisionSystem(),
                     //PositionSystem(),
                     //DestructionSystem(),
-                    PositionSystemX(),
-                    CollisionSystemX(),
+                    PositionSystem(),
+                    CollisionSystem(),
                     GravitationalSystemX(),
                     //CollisionSystemX()
                 )

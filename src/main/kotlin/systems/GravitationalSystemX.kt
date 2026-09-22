@@ -5,6 +5,9 @@ import systems.interfaces.SimulationSystem
 
 class GravitationalSystemX() : SimulationSystem {
     override fun updateState(dt: Double) {
+
+
+
 /*
         val gravitySources = ComponentsManager.getComponent(ComponentType.GRAVITY_SOURCE) as GravitySourceComponent
         val velocities = ComponentsManager.getComponent(ComponentType.VELOCITY) as VelocityComponent
