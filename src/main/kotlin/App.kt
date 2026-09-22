@@ -76,7 +76,8 @@ class App {
             entity.addCircle(5.0)
             entity.addColor(255.toByte(), 0, 0)
             entity.addGravityForce(10000.0)
-            entity.addCollision(10000.0, CollisionType.ELASTIC)
+            entity.addCollision(CollisionType.ELASTIC)
+            entity.addMass(10000.0)
             entities.add(entity)
 
         }
@@ -112,8 +113,8 @@ class App {
                     Random.nextInt(0, 255).toByte(),
                     Random.nextInt(0, 255).toByte()
                 )
-                entity.addCollision(1.0, CollisionType.ELASTIC)
-
+                entity.addCollision(CollisionType.ELASTIC)
+                entity.addMass(1.0)
                 entities.add(entity)
                 break
             }

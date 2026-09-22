@@ -16,6 +16,7 @@ import systems.interfaces.SimulationSystem
 class CollisionSystemX : SimulationSystem {
     private var gridQueryBuffer = IntArray(10000)
     private var circles: Component1D
+    private var masses: Component1D
     private var positions: Component2D
     private var collisions: ColliderComponent
     private var velocities: Component2D
@@ -23,6 +24,7 @@ class CollisionSystemX : SimulationSystem {
 
     init {
         circles = ComponentsManager.getComponent(ComponentType.SHAPE_CIRCLE) as Component1D
+        masses = ComponentsManager.getComponent(ComponentType.MASS) as Component1D
         positions = ComponentsManager.getComponent(ComponentType.POSITION) as Component2D
         collisions = ComponentsManager.getComponent(ComponentType.COLLISION) as ColliderComponent
         velocities = ComponentsManager.getComponent(ComponentType.VELOCITY) as Component2D
@@ -61,12 +63,12 @@ class CollisionSystemX : SimulationSystem {
                     if (distanceSquared( p1x, p1y,  p2x, p2y) <= (r1 + r2) * (r1 + r2)) {
                         val v1x = velocities.x[velocities.entitiesMap[id1]!!]
                         val v1y = velocities.y[velocities.entitiesMap[id1]!!]
-                        val m1 = collisions.mass[collisions.entitiesMap[id1]!!]
+                        val m1 = masses.values[masses.entitiesMap[id1]!!]
                         val collisionType1 = collisions.type[collisions.entitiesMap[id1]!!]
 
                         val v2x = velocities.x[velocities.entitiesMap[id2]!!]
                         val v2y = velocities.y[velocities.entitiesMap[id2]!!]
-                        val m2 = collisions.mass[collisions.entitiesMap[id2]!!]
+                        val m2 = masses.values[collisions.entitiesMap[id2]!!]
                         val collisionType2 = collisions.type[collisions.entitiesMap[id2]!!]
                         when {
                             collisionType1 == CollisionType.ELASTIC || collisionType2 == CollisionType.ELASTIC -> doElasticCollision(id1, v1x, v1y, p1x, p1y, m1, r1, id2, v2x, v2y, p2x, p2y, m2, r2)
@@ -102,7 +104,7 @@ class CollisionSystemX : SimulationSystem {
         velocities.y[velocities.entitiesMap[id1]!!] = newVy
 
         circles.values[circles.entitiesMap[id1]!!] = newR
-        collisions.mass[collisions.entitiesMap[id1]!!] = sumOfMasses
+        masses.values[collisions.entitiesMap[id1]!!] = sumOfMasses
 
         //Move objects
         positions.x[positions.entitiesMap[id1]!!] = newPx

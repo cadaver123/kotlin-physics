@@ -6,6 +6,7 @@ import components.ColorComponent
 import components.ComponentType
 import components.ComponentsManager
 import components.GravitySourceComponent
+import components.MassComponent
 import components.PositionComponent
 import components.VelocityComponent
 import components.generic.Component2D
@@ -57,9 +58,14 @@ class Entity(vararg var components: Component, var flags: Flags) {
         componentsSet[id].set(ComponentType.GRAVITY_SOURCE.ordinal)
     }
 
-    fun addCollision(mass: Double, type: CollisionType) {
-        (ComponentsManager.getComponent(ComponentType.COLLISION) as ColliderComponent).attach(id, mass, type)
+    fun addCollision(type: CollisionType) {
+        (ComponentsManager.getComponent(ComponentType.COLLISION) as ColliderComponent).attach(id, type)
         componentsSet[id].set(ComponentType.COLLISION.ordinal)
+    }
+
+    fun addMass(mass: Double) {
+        (ComponentsManager.getComponent(ComponentType.MASS) as MassComponent).attach(id, mass)
+        componentsSet[id].set(ComponentType.MASS.ordinal)
     }
 
 
