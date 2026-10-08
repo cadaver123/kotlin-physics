@@ -1,11 +1,11 @@
 package entities;
 
+import components.AccelerationComponent
 import components.ColliderComponent
 import components.CollisionType
 import components.ColorComponent
 import components.ComponentType
 import components.ComponentsManager
-import components.GravitySourceComponent
 import components.MassComponent
 import components.PositionComponent
 import components.VelocityComponent
@@ -42,6 +42,14 @@ class Entity(vararg var components: Component, var flags: Flags) {
         )
         componentsSet[id].set(ComponentType.VELOCITY.ordinal)
     }
+    fun addAcceleration(initialX: Double, initialY: Double) {
+        (ComponentsManager.getComponent(ComponentType.ACCELERATION) as AccelerationComponent).attachComponentToEntity(
+            id,
+            initialX,
+            initialY
+        )
+        componentsSet[id].set(ComponentType.ACCELERATION.ordinal)
+    }
 
     fun addCircle(radius: Double) {
         (ComponentsManager.getComponent(ComponentType.SHAPE_CIRCLE) as CircleComponent).attach(id, radius)
@@ -51,11 +59,6 @@ class Entity(vararg var components: Component, var flags: Flags) {
     fun addColor(initialR: Byte, initialG: Byte, initialB: Byte) {
         (ComponentsManager.getComponent(ComponentType.COLOR) as ColorComponent).attach(id, initialR, initialG, initialB)
         componentsSet[id].set(ComponentType.COLOR.ordinal)
-    }
-
-    fun addGravityForce(strength: Double) {
-        (ComponentsManager.getComponent(ComponentType.GRAVITY_SOURCE) as GravitySourceComponent).attach(id, strength)
-        componentsSet[id].set(ComponentType.GRAVITY_SOURCE.ordinal)
     }
 
     fun addCollision(type: CollisionType) {

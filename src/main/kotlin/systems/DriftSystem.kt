@@ -6,10 +6,12 @@ import components.ComponentsManager
 import components.generic.Component2D
 import systems.interfaces.SimulationSystem
 
-class PositionSystem : SimulationSystem {
+class DriftSystem : SimulationSystem {
+    val velocities = ComponentsManager.getComponent(ComponentType.VELOCITY) as Component2D
+    val accelerations = ComponentsManager.getComponent(ComponentType.ACCELERATION) as Component2D
+    val positions = ComponentsManager.getComponent(ComponentType.POSITION) as Component2D
+
     override fun updateState(dt: Double) {
-        val velocities = ComponentsManager.getComponent(ComponentType.VELOCITY) as Component2D
-        val positions = ComponentsManager.getComponent(ComponentType.POSITION) as Component2D
         velocities.entitiesMap.forEach { entityId, indexV ->
             val positionIndex = positions.entitiesMap[entityId]
             if (positionIndex != null) {
@@ -28,7 +30,7 @@ class PositionSystem : SimulationSystem {
                     Environment.FINITE_PLANE && y + dy > Environment.ENV_SIZE.y -> y + dy - Environment.ENV_SIZE.y
                     else -> y + dy
                 }
-                if(dy != 0.0 || dx != 0.0) {
+                if (dy != 0.0 || dx != 0.0) {
                     Environment.grid.updateGrid(entityId)
                 }
             }

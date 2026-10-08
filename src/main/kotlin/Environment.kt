@@ -9,8 +9,8 @@ object Environment {
     val ENV_SIZE = Vector(WIDTH.toDouble(), HEIGHT.toDouble())
     const val MAX_VELOCITY = 1000.0
     val CENTER_POINT = Vector((ENV_SIZE.x / 2.0).toDouble(), (ENV_SIZE.y / 2.0).toDouble())
-    const val FINITE_PLANE = true
-    const val GRAVITATIONAL_CONSTANT = 100.0
+    const val FINITE_PLANE = false
+    const val GRAVITATIONAL_CONSTANT = 19.0
     const val TARGET_FPS = 60
 
     lateinit var entities: MutableList<Entity>

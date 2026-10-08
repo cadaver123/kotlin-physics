@@ -12,10 +12,10 @@ class ComponentsManager {
                 ComponentType.COLLISION -> ColliderComponent()
                 ComponentType.POSITION -> PositionComponent(10000)
                 ComponentType.VELOCITY -> VelocityComponent(10000)
+                ComponentType.ACCELERATION -> AccelerationComponent(10000)
                 ComponentType.COLOR -> ColorComponent()
                 ComponentType.SHAPE_CIRCLE -> CircleComponent(10000)
                 ComponentType.MASS -> MassComponent(10000)
-                ComponentType.GRAVITY_SOURCE -> GravitySourceComponent(10000)
             }
         }
 

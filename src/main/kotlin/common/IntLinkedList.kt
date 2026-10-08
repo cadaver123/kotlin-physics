@@ -21,7 +21,6 @@ class IntLinkedList {
         if(nextElId != -1) {
             prevElIds[nextElId] = node
         }
-
         return node
     }
 
@@ -42,7 +41,7 @@ class IntLinkedList {
 
         values[size] = value
         nextElIds[size] = nextElId
-        val id = size++
+         val id = size++
         if(nextElId != -1) {
             prevElIds[nextElId] = id
         }
@@ -55,7 +54,7 @@ class IntLinkedList {
     }
 
     fun erase(idx: Int) {
-        values[idx] = freeElementId;
-        freeElementId = idx;
+        values[idx] = freeElementId
+        freeElementId = idx
     }
 }

@@ -9,11 +9,15 @@ import entities.Entity
 import graphics.raylib.Window
 import kotlin.math.sqrt
 import kotlin.random.Random
+import systems.AccelerationResetSystem
 import systems.CollisionSystem
 import systems.GravitationalSystemX
-import systems.PositionSystem
+import systems.DriftSystem
+import systems.KickSystem
 import systems.interfaces.SimulationSystem
 
+
+private const val STAR_MASS = 10000.0
 
 class App {
     companion object {
@@ -46,9 +50,12 @@ class App {
                     //CollisionSystem(),
                     //PositionSystem(),
                     //DestructionSystem(),
-                    PositionSystem(),
+                    KickSystem(),
+                    DriftSystem(),
+                    AccelerationResetSystem(),
                     CollisionSystem(),
                     GravitationalSystemX(),
+                    KickSystem(),
                     //CollisionSystemX()
                 )
             )
@@ -60,7 +67,7 @@ class App {
 //            Environment.entities.add(Entity(Circle(10.0, Color.BLUE), Position(CENTER_POINT + Vector(20.0, .0)), Velocity(Vector(10.0, .0)), Weight(1.0)))
 
 
-            addStar(entities, Environment.CENTER_POINT)
+             addStar(entities, Environment.CENTER_POINT)
             //addStar(entities, CENTER_POINT + Vector(100.0, .0))
 
             for (i in 1..9999) {
@@ -73,11 +80,11 @@ class App {
             val entity = Entity(flags = flagsOf())
             entity.addPosition(Environment.CENTER_POINT.x, Environment.CENTER_POINT.y)
             entity.addVelocity(0.0, 0.0)
+            entity.addAcceleration(0.0, 0.0)
             entity.addCircle(5.0)
             entity.addColor(255.toByte(), 0, 0)
-            entity.addGravityForce(10000.0)
-            entity.addCollision(CollisionType.ELASTIC)
-            entity.addMass(10000.0)
+            entity.addCollision(CollisionType.MERGE)
+            entity.addMass(STAR_MASS)
             entities.add(entity)
 
         }
@@ -100,20 +107,21 @@ class App {
                     }
                 }
                 val distanceFromCenter = sqrt((Environment.CENTER_POINT.x - x) * (Environment.CENTER_POINT.x - x) + (Environment.CENTER_POINT.y - y) * (Environment.CENTER_POINT.y - y))
-                val velocityFactor = sqrt(100.0 / distanceFromCenter)
-                val velocityX = y/distanceFromCenter * velocityFactor
-                val velocityY = -x /distanceFromCenter * velocityFactor
+                val velocityFactor = sqrt(Environment.GRAVITATIONAL_CONSTANT * STAR_MASS / distanceFromCenter)
+                val velocityX = (y - Environment.CENTER_POINT.y)/distanceFromCenter * velocityFactor
+                val velocityY = -(x - Environment.CENTER_POINT.x)/distanceFromCenter * velocityFactor
 
                 val entity = Entity(flags = flagsOf())
                 entity.addPosition(x, y)
                 entity.addVelocity(velocityX, velocityY)
+                entity.addAcceleration(0.0, 0.0)
                 entity.addCircle(r)
                 entity.addColor(
                     Random.nextInt(0, 255).toByte(),
                     Random.nextInt(0, 255).toByte(),
                     Random.nextInt(0, 255).toByte()
                 )
-                entity.addCollision(CollisionType.ELASTIC)
+                entity.addCollision(CollisionType.MERGE)
                 entity.addMass(1.0)
                 entities.add(entity)
                 break

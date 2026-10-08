@@ -2,6 +2,7 @@ package systems
 
 import Environment
 import common.Vector
+import common.distanceSquared
 import components.ColliderComponent
 import components.CollisionType
 import components.ComponentType
@@ -60,7 +61,7 @@ class CollisionSystem : SimulationSystem {
                     val p2x = positions.x[positions.entitiesMap[id2]!!]
                     val p2y = positions.y[positions.entitiesMap[id2]!!]
                     val r2 = circles.values[circles.entitiesMap[id2]!!]
-                    if (distanceSquared( p1x, p1y,  p2x, p2y) <= (r1 + r2) * (r1 + r2)) {
+                    if (distanceSquared(p1x, p1y, p2x, p2y) <= (r1 + r2) * (r1 + r2)) {
                         val v1x = velocities.x[velocities.entitiesMap[id1]!!]
                         val v1y = velocities.y[velocities.entitiesMap[id1]!!]
                         val m1 = masses.values[masses.entitiesMap[id1]!!]
@@ -68,7 +69,7 @@ class CollisionSystem : SimulationSystem {
 
                         val v2x = velocities.x[velocities.entitiesMap[id2]!!]
                         val v2y = velocities.y[velocities.entitiesMap[id2]!!]
-                        val m2 = masses.values[collisions.entitiesMap[id2]!!]
+                        val m2 = masses.values[masses.entitiesMap[id2]!!]
                         val collisionType2 = collisions.type[collisions.entitiesMap[id2]!!]
                         when {
                             collisionType1 == CollisionType.ELASTIC || collisionType2 == CollisionType.ELASTIC -> doElasticCollision(id1, v1x, v1y, p1x, p1y, m1, r1, id2, v2x, v2y, p2x, p2y, m2, r2)
@@ -95,7 +96,7 @@ class CollisionSystem : SimulationSystem {
         val sumOfMasses = m1 + m2
         val newVx = (v1x * m1 + v2x * m2) / sumOfMasses
         val newVy = (v1y * m1 + v2y * m2) / sumOfMasses
-        val newR = sqrt(r1*r1 + r2*r2)
+        val newR = sqrt(2.0*(r1 + r2))
         val newPScaleFactor = m2 / (m1 + m2)
         val newPx = p1x + newPScaleFactor * (p2x - p1x)
         val newPy = p1y + newPScaleFactor * (p2y - p1y)
@@ -104,7 +105,7 @@ class CollisionSystem : SimulationSystem {
         velocities.y[velocities.entitiesMap[id1]!!] = newVy
 
         circles.values[circles.entitiesMap[id1]!!] = newR
-        masses.values[collisions.entitiesMap[id1]!!] = sumOfMasses
+        masses.values[masses.entitiesMap[id1]!!] = sumOfMasses
 
         //Move objects
         positions.x[positions.entitiesMap[id1]!!] = newPx
@@ -168,8 +169,5 @@ class CollisionSystem : SimulationSystem {
         return Vector.distance(x1, y1, x2, y2) <= r1 + r2
     }
 
-    fun distanceSquared(x1: Double, y1: Double, x2: Double, y2: Double): Double {
-        return (x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2)
-    }
 }
 
